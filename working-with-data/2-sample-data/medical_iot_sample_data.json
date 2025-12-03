@@ -1,0 +1,162 @@
+[
+  {
+    "device_id": "MED-BP-001",
+    "device_type": "blood_pressure_monitor",
+    "manufacturer": "MedTech Solutions",
+    "model": "BP-Pro-2024",
+    "firmware_version": "2.1.3",
+    "patient_id": "PT-789456",
+    "patient_mrn": "MRN-2024-001",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "ICU-204",
+    "timestamp": "2024-11-10T10:45:32.123Z",
+    "measurements": {
+      "systolic_bp": 128,
+      "diastolic_bp": 82,
+      "heart_rate": 72,
+      "measurement_unit": "mmHg"
+    },
+    "device_status": {
+      "battery_level": 85,
+      "signal_strength": -45,
+      "calibration_date": "2024-11-01",
+      "last_maintenance": "2024-10-15"
+    },
+    "location": {
+      "latitude": 40.7589,
+      "longitude": -73.9851,
+      "floor": 2,
+      "wing": "East"
+    },
+    "alert_level": "normal",
+    "data_quality": "high"
+  },
+  {
+    "device_id": "MED-OX-002",
+    "device_type": "pulse_oximeter",
+    "manufacturer": "VitalSense Corp",
+    "model": "OX-Monitor-X1",
+    "firmware_version": "1.8.7",
+    "patient_id": "PT-456123",
+    "patient_mrn": "MRN-2024-002",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "ER-105",
+    "timestamp": "2024-11-10T10:47:15.456Z",
+    "measurements": {
+      "oxygen_saturation": 97,
+      "heart_rate": 88,
+      "perfusion_index": 2.1,
+      "measurement_unit": "%"
+    },
+    "device_status": {
+      "battery_level": 62,
+      "signal_strength": -38,
+      "calibration_date": "2024-10-28",
+      "last_maintenance": "2024-10-20"
+    },
+    "location": {
+      "latitude": 40.7589,
+      "longitude": -73.9851,
+      "floor": 1,
+      "wing": "Emergency"
+    },
+    "alert_level": "normal",
+    "data_quality": "high"
+  },
+  {
+    "device_id": "MED-GLU-003",
+    "device_type": "glucose_monitor",
+    "manufacturer": "DiabCare Systems",
+    "model": "GlucoTrack-Pro",
+    "firmware_version": "3.2.1",
+    "patient_id": "PT-321654",
+    "patient_mrn": "MRN-2024-003",
+    "facility_id": "CLINIC-BOS-002",
+    "room_number": "ENDO-301",
+    "timestamp": "2024-11-10T10:50:42.789Z",
+    "measurements": {
+      "glucose_level": 142,
+      "measurement_unit": "mg/dL",
+      "test_type": "fasting"
+    },
+    "device_status": {
+      "battery_level": 91,
+      "signal_strength": -42,
+      "calibration_date": "2024-11-05",
+      "last_maintenance": "2024-11-01"
+    },
+    "location": {
+      "latitude": 42.3601,
+      "longitude": -71.0589,
+      "floor": 3,
+      "wing": "Endocrinology"
+    },
+    "alert_level": "elevated",
+    "data_quality": "high"
+  },
+  {
+    "device_id": "MED-ECG-004",
+    "device_type": "ecg_monitor",
+    "manufacturer": "CardioTech Inc",
+    "model": "ECG-Continuous-V2",
+    "firmware_version": "4.1.2",
+    "patient_id": "PT-987321",
+    "patient_mrn": "MRN-2024-004",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "CCU-102",
+    "timestamp": "2024-11-10T10:52:18.234Z",
+    "measurements": {
+      "heart_rate": 95,
+      "rhythm": "sinus_rhythm",
+      "qt_interval": 420,
+      "pr_interval": 160,
+      "measurement_unit": "bpm"
+    },
+    "device_status": {
+      "battery_level": 78,
+      "signal_strength": -35,
+      "calibration_date": "2024-10-30",
+      "last_maintenance": "2024-10-25"
+    },
+    "location": {
+      "latitude": 40.7589,
+      "longitude": -73.9851,
+      "floor": 1,
+      "wing": "Cardiac"
+    },
+    "alert_level": "normal",
+    "data_quality": "high"
+  },
+  {
+    "device_id": "MED-TEMP-005",
+    "device_type": "temperature_sensor",
+    "manufacturer": "ThermoMed Solutions",
+    "model": "TempTrack-Wireless",
+    "firmware_version": "2.3.4",
+    "patient_id": "PT-654987",
+    "patient_mrn": "MRN-2024-005",
+    "facility_id": "CLINIC-LA-003",
+    "room_number": "PEDS-201",
+    "timestamp": "2024-11-10T10:48:55.567Z",
+    "measurements": {
+      "body_temperature": 101.2,
+      "ambient_temperature": 72.1,
+      "measurement_unit": "°F",
+      "sensor_location": "forehead"
+    },
+    "device_status": {
+      "battery_level": 45,
+      "signal_strength": -48,
+      "calibration_date": "2024-10-22",
+      "last_maintenance": "2024-10-18"
+    },
+    "location": {
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "floor": 2,
+      "wing": "Pediatrics"
+    },
+    "alert_level": "high",
+    "data_quality": "medium"
+  }
+]

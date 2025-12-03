@@ -1,0 +1,194 @@
+[
+  {
+    "device_id": "MED-BP-006",
+    "device_type": "blood_pressure_monitor",
+    "manufacturer": "MedTech Solutions",
+    "model": "BP-Pro-2024",
+    "firmware_version": "2.1.3",
+    "patient_id": "PT-111222",
+    "patient_mrn": "MRN-2024-006",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "ICU-205",
+    "timestamp": "2024-11-10T10:55:12.345Z",
+    "measurements": {
+      "systolic_bp": 999,
+      "diastolic_bp": -15,
+      "heart_rate": 0,
+      "measurement_unit": "mmHg"
+    },
+    "device_status": {
+      "battery_level": 15,
+      "signal_strength": -95,
+      "calibration_date": "2023-08-15",
+      "last_maintenance": "2023-07-10"
+    },
+    "location": {
+      "latitude": 40.7589,
+      "longitude": -73.9851,
+      "floor": 2,
+      "wing": "East"
+    },
+    "alert_level": "critical",
+    "data_quality": "poor"
+  },
+  {
+    "device_id": "MED-OX-007",
+    "device_type": "pulse_oximeter",
+    "manufacturer": "VitalSense Corp",
+    "model": "OX-Monitor-X1",
+    "firmware_version": null,
+    "patient_id": "",
+    "patient_mrn": "MRN-2024-007",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "ER-106",
+    "timestamp": "2024-13-45T25:99:99.999Z",
+    "measurements": {
+      "oxygen_saturation": 150,
+      "heart_rate": -42,
+      "perfusion_index": "ERROR",
+      "measurement_unit": "%"
+    },
+    "device_status": {
+      "battery_level": 200,
+      "signal_strength": 50,
+      "calibration_date": "invalid_date",
+      "last_maintenance": ""
+    },
+    "location": {
+      "latitude": 999.9999,
+      "longitude": -999.9999,
+      "floor": -1,
+      "wing": null
+    },
+    "alert_level": "unknown",
+    "data_quality": "corrupted"
+  },
+  {
+    "device_id": "MED-GLU-008",
+    "device_type": "glucose_monitor",
+    "manufacturer": "DiabCare Systems",
+    "model": "GlucoTrack-Pro",
+    "firmware_version": "3.2.1",
+    "patient_id": "PT-333444",
+    "patient_mrn": "MRN-2024-008",
+    "facility_id": "CLINIC-BOS-002",
+    "room_number": "ENDO-302",
+    "timestamp": "2024-11-10T10:51:30.123Z",
+    "measurements": {
+      "glucose_level": 0,
+      "measurement_unit": "invalid_unit",
+      "test_type": "unknown"
+    },
+    "device_status": {
+      "battery_level": 5,
+      "signal_strength": -120,
+      "calibration_date": "1900-01-01",
+      "last_maintenance": "never"
+    },
+    "location": {
+      "latitude": "not_a_number",
+      "longitude": -71.0589,
+      "floor": 3.5,
+      "wing": "Endocrinology"
+    },
+    "alert_level": "sensor_failure",
+    "data_quality": "unreliable"
+  },
+  {
+    "device_id": "MED-ECG-009",
+    "device_type": "ecg_monitor",
+    "manufacturer": "CardioTech Inc",
+    "model": "ECG-Continuous-V2",
+    "firmware_version": "4.1.2",
+    "patient_id": "PT-555666",
+    "patient_mrn": "MRN-2024-009",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "CCU-103",
+    "timestamp": "2024-11-10T10:53:45.678Z",
+    "measurements": {
+      "heart_rate": 300,
+      "rhythm": "artifact_detected",
+      "qt_interval": 1000,
+      "pr_interval": 0,
+      "measurement_unit": "bpm"
+    },
+    "device_status": {
+      "battery_level": -10,
+      "signal_strength": null,
+      "calibration_date": "2024-02-30",
+      "last_maintenance": "2024-10-32"
+    },
+    "location": {
+      "latitude": 40.7589,
+      "longitude": -73.9851,
+      "floor": 1,
+      "wing": "Cardiac"
+    },
+    "alert_level": "equipment_malfunction",
+    "data_quality": "invalid"
+  },
+  {
+    "device_id": "MED-TEMP-010",
+    "device_type": "temperature_sensor",
+    "manufacturer": "ThermoMed Solutions",
+    "model": "TempTrack-Wireless",
+    "firmware_version": "2.3.4",
+    "patient_id": "PT-777888",
+    "patient_mrn": "MRN-2024-010",
+    "facility_id": "CLINIC-LA-003",
+    "room_number": "PEDS-202",
+    "timestamp": "2024-11-10T10:49:22.890Z",
+    "measurements": {
+      "body_temperature": -40.5,
+      "ambient_temperature": 200.7,
+      "measurement_unit": "Kelvin",
+      "sensor_location": "disconnected"
+    },
+    "device_status": {
+      "battery_level": 0,
+      "signal_strength": -200,
+      "calibration_date": "future_date_2030",
+      "last_maintenance": "maintenance_overdue"
+    },
+    "location": {
+      "latitude": 34.0522,
+      "longitude": -118.2437,
+      "floor": "basement",
+      "wing": "Pediatrics"
+    },
+    "alert_level": "system_error",
+    "data_quality": "failed"
+  },
+  {
+    "device_id": "MED-BP-011",
+    "device_type": "blood_pressure_monitor",
+    "manufacturer": "MedTech Solutions",
+    "model": "BP-Pro-2024",
+    "firmware_version": "2.1.3",
+    "patient_id": "PT-999000",
+    "patient_mrn": "MRN-2024-011",
+    "facility_id": "HOSP-NYC-001",
+    "room_number": "ICU-206",
+    "timestamp": "2024-11-10T10:56:01.111Z",
+    "measurements": {
+      "systolic_bp": 50,
+      "diastolic_bp": 200,
+      "heart_rate": 500,
+      "measurement_unit": "invalid"
+    },
+    "device_status": {
+      "battery_level": null,
+      "signal_strength": "no_signal",
+      "calibration_date": "",
+      "last_maintenance": "unknown"
+    },
+    "location": {
+      "latitude": 0,
+      "longitude": 0,
+      "floor": null,
+      "wing": ""
+    },
+    "alert_level": "connection_lost",
+    "data_quality": "missing"
+  }
+]

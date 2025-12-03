@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Star Wars Data Explorer</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .chart { margin: 20px 0; }
+        .bar { fill: steelblue; }
+        .bar:hover { fill: orange; }
+        .axis { font-size: 12px; }
+        .node { stroke: #fff; stroke-width: 1.5px; }
+        .link { stroke: #999; stroke-opacity: 0.6; }
+        .lifespan { stroke: #333; stroke-width: 1; }
+        .battle { cursor: pointer; }
+        .mortality-bar { stroke: #333; stroke-width: 0.5; }
+        button { margin: 10px; padding: 10px; background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        #info { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Star Wars Data Explorer</h1>
+        
+        <div>
+            <button onclick="showSpeciesChart()">Species Distribution</button>
+            <button onclick="showCharacterNetwork()">Character Network</button>
+            <button onclick="showPlanetChart()">Planet Data</button>
+            <button onclick="showSpeciesDonut()">Species Donut</button>
+            <button onclick="showBattles()">Battles</button>
+            <button onclick="showTimeline()">Timeline</button>
+        </div>
+        
+        <div style="margin-top: 20px; border-top: 2px solid #007cba; padding-top: 15px;">
+            <h3 style="color: #007cba;">🚀 Galactic Conflict Analysis</h3>
+            <button onclick="showBattleOutcomes()">Battle Outcomes Timeline</button>
+            <button onclick="showCharacterLifespans()">Character Lifespans & Conflicts</button>
+            <button onclick="showPopulationCenters()">Population Centers vs Battles</button>
+            <button onclick="showSpeciesSurvival()">Species Survival Analysis</button>
+        </div>
+
+        <div id="info"></div>
+        <div id="chart"></div>
+    </div>
+
+    <script>
+        let currentData = {};
+
+        function showSpeciesChart() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Species Distribution</h3><p>Number of characters by species</p>");
+            
+            fetch('/api/species-count')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 20, right: 30, bottom: 40, left: 90};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 400 - margin.bottom - margin.top;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const x = d3.scaleLinear()
+                        .domain([0, d3.max(data, d => d.count)])
+                        .range([0, width]);
+
+                    const y = d3.scaleBand()
+                        .domain(data.map(d => d.species))
+                        .range([0, height])
+                        .padding(0.1);
+
+                    g.selectAll(".bar")
+                        .data(data)
+                        .enter().append("rect")
+                        .attr("class", "bar")
+                        .attr("x", 0)
+                        .attr("y", d => y(d.species))
+                        .attr("width", d => x(d.count))
+                        .attr("height", y.bandwidth());
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height})`)
+                        .call(d3.axisBottom(x));
+                });
+        }
+
+        function showCharacterNetwork() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Character Network</h3><p>Characters grouped by homeworld</p>");
+            
+            fetch('/api/characters')
+                .then(response => response.json())
+                .then(characters => {
+                    const width = 800;
+                    const height = 600;
+
+                    const nodes = characters.filter(c => c.homeworld).map(c => ({
+                        id: c.name,
+                        group: c.homeworld,
+                        species: c.species
+                    }));
+
+                    const links = [];
+                    const worlds = {};
+                    nodes.forEach(node => {
+                        if (!worlds[node.group]) worlds[node.group] = [];
+                        worlds[node.group].push(node);
+                    });
+
+                    Object.values(worlds).forEach(worldNodes => {
+                        for (let i = 0; i < worldNodes.length - 1; i++) {
+                            for (let j = i + 1; j < worldNodes.length; j++) {
+                                links.push({
+                                    source: worldNodes[i].id,
+                                    target: worldNodes[j].id
+                                });
+                            }
+                        }
+                    });
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+                    const simulation = d3.forceSimulation(nodes)
+                        .force("link", d3.forceLink(links).id(d => d.id))
+                        .force("charge", d3.forceManyBody().strength(-300))
+                        .force("center", d3.forceCenter(width / 2, height / 2));
+
+                    const link = svg.append("g")
+                        .selectAll("line")
+                        .data(links)
+                        .enter().append("line")
+                        .attr("class", "link");
+
+                    const node = svg.append("g")
+                        .selectAll("circle")
+                        .data(nodes)
+                        .enter().append("circle")
+                        .attr("class", "node")
+                        .attr("r", 5)
+                        .attr("fill", d => color(d.group))
+                        .call(d3.drag()
+                            .on("start", dragstarted)
+                            .on("drag", dragged)
+                            .on("end", dragended));
+
+                    node.append("title")
+                        .text(d => `${d.id} (${d.group})`);
+
+                    simulation.on("tick", () => {
+                        link
+                            .attr("x1", d => d.source.x)
+                            .attr("y1", d => d.source.y)
+                            .attr("x2", d => d.target.x)
+                            .attr("y2", d => d.target.y);
+
+                        node
+                            .attr("cx", d => d.x)
+                            .attr("cy", d => d.y);
+                    });
+
+                    function dragstarted(event, d) {
+                        if (!event.active) simulation.alphaTarget(0.3).restart();
+                        d.fx = d.x;
+                        d.fy = d.y;
+                    }
+
+                    function dragged(event, d) {
+                        d.fx = event.x;
+                        d.fy = event.y;
+                    }
+
+                    function dragended(event, d) {
+                        if (!event.active) simulation.alphaTarget(0);
+                        d.fx = null;
+                        d.fy = null;
+                    }
+                });
+        }
+
+        function showPlanetChart() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Planet Data</h3><p>Planet population vs diameter</p>");
+            
+            fetch('/api/planets')
+                .then(response => response.json())
+                .then(data => {
+                    const planets = data.filter(p => p.population && p.diameter);
+                    
+                    const margin = {top: 20, right: 30, bottom: 40, left: 60};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 400 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const x = d3.scaleLinear()
+                        .domain(d3.extent(planets, d => d.diameter))
+                        .range([0, width]);
+
+                    const y = d3.scaleLog()
+                        .domain(d3.extent(planets, d => d.population))
+                        .range([height, 0]);
+
+                    g.selectAll("circle")
+                        .data(planets)
+                        .enter().append("circle")
+                        .attr("cx", d => x(d.diameter))
+                        .attr("cy", d => y(d.population))
+                        .attr("r", 5)
+                        .attr("fill", "steelblue")
+                        .attr("opacity", 0.7)
+                        .append("title")
+                        .text(d => `${d.name}: ${d.population} population, ${d.diameter}km diameter`);
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height})`)
+                        .call(d3.axisBottom(x));
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+                });
+        }
+
+        function showSpeciesDonut() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Species Distribution (Donut)</h3><p>Character species as a donut chart</p>");
+            
+            fetch('/api/species-count')
+                .then(response => response.json())
+                .then(data => {
+                    const width = 400;
+                    const height = 400;
+                    const radius = Math.min(width, height) / 2;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width)
+                        .attr("height", height);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${width/2},${height/2})`);
+
+                    const color = d3.scaleOrdinal(d3.schemeCategory10);
+                    const pie = d3.pie().value(d => d.count);
+                    const arc = d3.arc().innerRadius(radius * 0.4).outerRadius(radius * 0.8);
+
+                    const arcs = g.selectAll(".arc")
+                        .data(pie(data))
+                        .enter().append("g")
+                        .attr("class", "arc");
+
+                    arcs.append("path")
+                        .attr("d", arc)
+                        .attr("fill", d => color(d.data.species))
+                        .append("title")
+                        .text(d => `${d.data.species}: ${d.data.count}`);
+
+                    arcs.append("text")
+                        .attr("transform", d => `translate(${arc.centroid(d)})`)
+                        .attr("text-anchor", "middle")
+                        .text(d => d.data.count > 2 ? d.data.species : "");
+                });
+        }
+
+        function showBattles() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Battles</h3><p>Major battles and their outcomes</p>");
+            
+            fetch('/api/battles')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 20, right: 30, bottom: 100, left: 150};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 400 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const y = d3.scaleBand()
+                        .domain(data.map(d => d.name))
+                        .range([0, height])
+                        .padding(0.1);
+
+                    const color = d3.scaleOrdinal()
+                        .domain(["Rebel Victory", "Imperial Victory", "Draw"])
+                        .range(["green", "red", "orange"]);
+
+                    g.selectAll(".bar")
+                        .data(data)
+                        .enter().append("rect")
+                        .attr("class", "bar")
+                        .attr("x", 0)
+                        .attr("y", d => y(d.name))
+                        .attr("width", 50)
+                        .attr("height", y.bandwidth())
+                        .attr("fill", d => color(d.result))
+                        .append("title")
+                        .text(d => `${d.name} (${d.date}): ${d.result}`);
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+                });
+        }
+
+        function showTimeline() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Timeline</h3><p>Major events in Star Wars history</p>");
+            
+            fetch('/api/timeline')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 20, right: 30, bottom: 40, left: 60};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 400 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const parseYear = d => {
+                        const match = d.year.match(/(\d+)\s*(BBY|ABY)/);
+                        if (!match) return 0;
+                        const year = parseInt(match[1]);
+                        return match[2] === 'BBY' ? -year : year;
+                    };
+
+                    const timelineData = data.map(d => ({
+                        ...d,
+                        numericYear: parseYear(d)
+                    })).sort((a, b) => a.numericYear - b.numericYear);
+
+                    const x = d3.scaleLinear()
+                        .domain(d3.extent(timelineData, d => d.numericYear))
+                        .range([0, width]);
+
+                    g.append("line")
+                        .attr("x1", 0)
+                        .attr("x2", width)
+                        .attr("y1", height/2)
+                        .attr("y2", height/2)
+                        .attr("stroke", "black")
+                        .attr("stroke-width", 2);
+
+                    g.selectAll(".event")
+                        .data(timelineData)
+                        .enter().append("circle")
+                        .attr("class", "event")
+                        .attr("cx", d => x(d.numericYear))
+                        .attr("cy", height/2)
+                        .attr("r", 5)
+                        .attr("fill", "steelblue")
+                        .append("title")
+                        .text(d => `${d.event} (${d.year})`);
+
+                    g.selectAll(".event-text")
+                        .data(timelineData)
+                        .enter().append("text")
+                        .attr("class", "event-text")
+                        .attr("x", d => x(d.numericYear))
+                        .attr("y", (d, i) => height/2 + (i % 2 === 0 ? -15 : 25))
+                        .attr("text-anchor", "middle")
+                        .attr("font-size", "10px")
+                        .text(d => d.year);
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height})`);
+                });
+        }
+
+        function showBattleOutcomes() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Battle Outcomes Timeline</h3><p>Major battles with outcomes and strategic analysis</p>");
+            
+            fetch('/api/battle-timeline')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 40, right: 100, bottom: 60, left: 150};
+                    const width = 900 - margin.left - margin.right;
+                    const height = 400 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const parseDate = d => {
+                        const match = d.date?.match(/(\d+)\s*(BBY|ABY)/);
+                        if (!match) return 0;
+                        const year = parseInt(match[1]);
+                        return match[2] === 'BBY' ? -year : year;
+                    };
+
+                    const battleData = data.map(d => ({
+                        ...d,
+                        numericDate: parseDate(d)
+                    })).sort((a, b) => a.numericDate - b.numericDate);
+
+                    const x = d3.scaleLinear()
+                        .domain(d3.extent(battleData, d => d.numericDate))
+                        .range([0, width]);
+
+                    const y = d3.scaleBand()
+                        .domain(battleData.map(d => d.name))
+                        .range([0, height])
+                        .padding(0.2);
+
+                    const color = d3.scaleOrdinal()
+                        .domain(["Rebel Victory", "Imperial Victory", "Republic Victory", "Naboo/Gungan Victory"])
+                        .range(["#4CAF50", "#F44336", "#2196F3", "#FF9800"]);
+
+                    // Timeline line
+                    g.append("line")
+                        .attr("x1", 0)
+                        .attr("x2", width)
+                        .attr("y1", height + 20)
+                        .attr("y2", height + 20)
+                        .attr("stroke", "#333")
+                        .attr("stroke-width", 2);
+
+                    // Battle rectangles
+                    g.selectAll(".battle")
+                        .data(battleData)
+                        .enter().append("rect")
+                        .attr("class", "battle")
+                        .attr("x", d => x(d.numericDate) - 15)
+                        .attr("y", d => y(d.name))
+                        .attr("width", 30)
+                        .attr("height", y.bandwidth())
+                        .attr("fill", d => color(d.result))
+                        .attr("stroke", "#333")
+                        .attr("stroke-width", 1)
+                        .on("mouseover", function(event, d) {
+                            d3.select(this).attr("opacity", 0.7);
+                        })
+                        .on("mouseout", function(event, d) {
+                            d3.select(this).attr("opacity", 1);
+                        })
+                        .append("title")
+                        .text(d => `${d.name}\nLocation: ${d.location}\nDate: ${d.date}\nResult: ${d.result}`);
+
+                    // Battle labels
+                    g.selectAll(".battle-label")
+                        .data(battleData)
+                        .enter().append("text")
+                        .attr("class", "battle-label")
+                        .attr("x", d => x(d.numericDate))
+                        .attr("y", d => y(d.name) + y.bandwidth()/2)
+                        .attr("text-anchor", "middle")
+                        .attr("dominant-baseline", "middle")
+                        .attr("font-size", "10px")
+                        .attr("fill", "white")
+                        .attr("font-weight", "bold")
+                        .text(d => d.name.split(' ')[2] || d.name.split(' ')[1]);
+
+                    // Axes
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height + 20})`)
+                        .call(d3.axisBottom(x).tickFormat(d => d < 0 ? `${Math.abs(d)} BBY` : `${d} ABY`));
+
+                    // Legend
+                    const legend = svg.append("g")
+                        .attr("transform", `translate(${width + margin.left + 10}, ${margin.top})`);
+
+                    const legendData = color.domain();
+                    legend.selectAll(".legend-item")
+                        .data(legendData)
+                        .enter().append("g")
+                        .attr("class", "legend-item")
+                        .attr("transform", (d, i) => `translate(0, ${i * 25})`);
+
+                    legend.selectAll(".legend-item")
+                        .append("rect")
+                        .attr("width", 15)
+                        .attr("height", 15)
+                        .attr("fill", d => color(d));
+
+                    legend.selectAll(".legend-item")
+                        .append("text")
+                        .attr("x", 20)
+                        .attr("y", 12)
+                        .attr("font-size", "12px")
+                        .text(d => d);
+                });
+        }
+
+        function showCharacterLifespans() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Character Lifespans & Conflicts</h3><p>Character lifespans with battle events overlay</p>");
+            
+            Promise.all([
+                fetch('/api/character-lifespans').then(r => r.json()),
+                fetch('/api/battle-timeline').then(r => r.json())
+            ]).then(([characters, battles]) => {
+                const margin = {top: 40, right: 30, bottom: 60, left: 150};
+                const width = 1000 - margin.left - margin.right;
+                const height = 600 - margin.top - margin.bottom;
+
+                const svg = d3.select("#chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+
+                const g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                const keyCharacters = characters.filter(c => 
+                    ['Luke Skywalker', 'Darth Vader', 'Yoda', 'Emperor Palpatine', 'Obi-Wan Kenobi', 'Leia Organa', 'Han Solo'].includes(c.name)
+                );
+
+                const x = d3.scaleLinear()
+                    .domain([-100, 40])
+                    .range([0, width]);
+
+                const y = d3.scaleBand()
+                    .domain(keyCharacters.map(d => d.name))
+                    .range([0, height])
+                    .padding(0.1);
+
+                const speciesColor = d3.scaleOrdinal(d3.schemeCategory10);
+
+                // Character lifespans
+                g.selectAll(".lifespan")
+                    .data(keyCharacters)
+                    .enter().append("rect")
+                    .attr("class", "lifespan")
+                    .attr("x", d => x(d.year_born))
+                    .attr("y", d => y(d.name))
+                    .attr("width", d => x(d.year_died || 35) - x(d.year_born))
+                    .attr("height", y.bandwidth())
+                    .attr("fill", d => speciesColor(d.species))
+                    .attr("opacity", 0.7)
+                    .append("title")
+                    .text(d => `${d.name} (${d.species})\nBorn: ${d.year_born} BBY\nDied: ${d.year_died ? d.year_died + ' ABY' : 'Still alive'}`);
+
+                // Battle markers
+                const parseDate = d => {
+                    const match = d.date?.match(/(\d+)\s*(BBY|ABY)/);
+                    if (!match) return 0;
+                    const year = parseInt(match[1]);
+                    return match[2] === 'BBY' ? -year : year;
+                };
+
+                battles.forEach(battle => {
+                    const battleYear = parseDate(battle);
+                    g.append("line")
+                        .attr("x1", x(battleYear))
+                        .attr("x2", x(battleYear))
+                        .attr("y1", 0)
+                        .attr("y2", height)
+                        .attr("stroke", "red")
+                        .attr("stroke-width", 2)
+                        .attr("stroke-dasharray", "5,5")
+                        .attr("opacity", 0.6)
+                        .append("title")
+                        .text(`${battle.name} (${battle.date})`);
+                });
+
+                // Axes
+                g.append("g")
+                    .attr("class", "axis")
+                    .call(d3.axisLeft(y));
+
+                g.append("g")
+                    .attr("class", "axis")
+                    .attr("transform", `translate(0,${height})`)
+                    .call(d3.axisBottom(x).tickFormat(d => d < 0 ? `${Math.abs(d)} BBY` : `${d} ABY`));
+            });
+        }
+
+        function showPopulationCenters() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Population Centers vs Battle Locations</h3><p>Planet population size vs battle occurrence</p>");
+            
+            fetch('/api/population-centers')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 40, right: 30, bottom: 60, left: 80};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 500 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const x = d3.scaleLinear()
+                        .domain(d3.extent(data, d => d.diameter))
+                        .range([0, width]);
+
+                    const y = d3.scaleLog()
+                        .domain(d3.extent(data, d => d.population))
+                        .range([height, 0]);
+
+                    const size = d3.scaleSqrt()
+                        .domain(d3.extent(data, d => d.population))
+                        .range([5, 25]);
+
+                    g.selectAll(".planet")
+                        .data(data)
+                        .enter().append("circle")
+                        .attr("class", "planet")
+                        .attr("cx", d => x(d.diameter))
+                        .attr("cy", d => y(d.population))
+                        .attr("r", d => size(d.population))
+                        .attr("fill", d => d.had_battle ? "#F44336" : "#4CAF50")
+                        .attr("opacity", 0.7)
+                        .attr("stroke", "#333")
+                        .attr("stroke-width", 1)
+                        .append("title")
+                        .text(d => `${d.name}\nPopulation: ${d.population.toLocaleString()}\nDiameter: ${d.diameter} km\nBattle Location: ${d.had_battle ? 'Yes' : 'No'}`);
+
+                    // Labels for major planets
+                    g.selectAll(".planet-label")
+                        .data(data.filter(d => d.population > 1000000000))
+                        .enter().append("text")
+                        .attr("class", "planet-label")
+                        .attr("x", d => x(d.diameter) + size(d.population) + 5)
+                        .attr("y", d => y(d.population))
+                        .attr("font-size", "10px")
+                        .attr("dominant-baseline", "middle")
+                        .text(d => d.name);
+
+                    // Axes
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height})`)
+                        .call(d3.axisBottom(x));
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+
+                    // Legend
+                    const legend = g.append("g")
+                        .attr("transform", `translate(${width - 150}, 20)`);
+
+                    legend.append("circle")
+                        .attr("cx", 10)
+                        .attr("cy", 10)
+                        .attr("r", 8)
+                        .attr("fill", "#F44336")
+                        .attr("opacity", 0.7);
+
+                    legend.append("text")
+                        .attr("x", 25)
+                        .attr("y", 15)
+                        .attr("font-size", "12px")
+                        .text("Battle Location");
+
+                    legend.append("circle")
+                        .attr("cx", 10)
+                        .attr("cy", 35)
+                        .attr("r", 8)
+                        .attr("fill", "#4CAF50")
+                        .attr("opacity", 0.7);
+
+                    legend.append("text")
+                        .attr("x", 25)
+                        .attr("y", 40)
+                        .attr("font-size", "12px")
+                        .text("No Battles");
+                });
+        }
+
+        function showSpeciesSurvival() {
+            d3.select("#chart").selectAll("*").remove();
+            d3.select("#info").html("<h3>Species Survival Analysis</h3><p>Mortality rates by species during galactic conflicts</p>");
+            
+            fetch('/api/species-survival')
+                .then(response => response.json())
+                .then(data => {
+                    const margin = {top: 40, right: 30, bottom: 60, left: 100};
+                    const width = 800 - margin.left - margin.right;
+                    const height = 400 - margin.top - margin.bottom;
+
+                    const svg = d3.select("#chart")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom);
+
+                    const g = svg.append("g")
+                        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                    const x = d3.scaleLinear()
+                        .domain([0, d3.max(data, d => d.mortality_rate)])
+                        .range([0, width]);
+
+                    const y = d3.scaleBand()
+                        .domain(data.map(d => d.species))
+                        .range([0, height])
+                        .padding(0.1);
+
+                    const color = d3.scaleSequential(d3.interpolateReds)
+                        .domain([0, d3.max(data, d => d.mortality_rate)]);
+
+                    g.selectAll(".mortality-bar")
+                        .data(data)
+                        .enter().append("rect")
+                        .attr("class", "mortality-bar")
+                        .attr("x", 0)
+                        .attr("y", d => y(d.species))
+                        .attr("width", d => x(d.mortality_rate))
+                        .attr("height", y.bandwidth())
+                        .attr("fill", d => color(d.mortality_rate))
+                        .append("title")
+                        .text(d => `${d.species}\nTotal Characters: ${d.total_count}\nDeaths: ${d.died_count}\nMortality Rate: ${d.mortality_rate}%`);
+
+                    // Mortality rate labels
+                    g.selectAll(".mortality-label")
+                        .data(data)
+                        .enter().append("text")
+                        .attr("class", "mortality-label")
+                        .attr("x", d => x(d.mortality_rate) + 5)
+                        .attr("y", d => y(d.species) + y.bandwidth()/2)
+                        .attr("dominant-baseline", "middle")
+                        .attr("font-size", "11px")
+                        .text(d => `${d.mortality_rate}%`);
+
+                    // Axes
+                    g.append("g")
+                        .attr("class", "axis")
+                        .call(d3.axisLeft(y));
+
+                    g.append("g")
+                        .attr("class", "axis")
+                        .attr("transform", `translate(0,${height})`)
+                        .call(d3.axisBottom(x).tickFormat(d => d + "%"));
+                });
+        }
+
+        // Load species chart by default
+        showSpeciesChart();
+    </script>
+</body>
+</html>

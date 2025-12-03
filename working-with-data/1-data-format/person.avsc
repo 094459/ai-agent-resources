@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "Person",
+  "namespace": "com.example.data",
+  "fields": [
+    {
+      "name": "name",
+      "type": "string",
+      "doc": "Full name of the person"
+    },
+    {
+      "name": "language",
+      "type": "string",
+      "doc": "Native language of the person"
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "doc": "Unique alphanumeric identifier"
+    },
+    {
+      "name": "bio",
+      "type": "string",
+      "doc": "Biographical text"
+    },
+    {
+      "name": "version",
+      "type": "double",
+      "doc": "Version number"
+    }
+  ]
+}
