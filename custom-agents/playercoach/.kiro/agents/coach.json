@@ -1,0 +1,14 @@
+{
+  "name": "coach",
+  "description": "",
+  "prompt": "file://../shared/COACH.md",
+  "mcpServers": {},
+  "tools": ["*"],
+  "toolAliases": {},
+  "allowedTools": ["*"],
+  "resources": ["file://AGENTS.md", "file://EVAL.md", "file://LEARNING.md"],
+  "hooks": {},
+  "toolsSettings": {},
+  "useLegacyMcpJson": true,
+  "model": "claude-sonnet-4"
+}

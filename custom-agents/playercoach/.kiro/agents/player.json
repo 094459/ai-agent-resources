@@ -1,0 +1,14 @@
+{
+  "name": "player",
+  "description": "",
+  "prompt": "file://../shared/PLAYER.md",
+  "mcpServers": {},
+  "tools": ["*"],
+  "toolAliases": {},
+  "allowedTools": ["*"],
+  "resources": ["file://AGENTS.md", "file://LEARNING.md"],
+  "hooks": {},
+  "toolsSettings": {},
+  "useLegacyMcpJson": true,
+  "model": "claude-sonnet-4.5"
+}
