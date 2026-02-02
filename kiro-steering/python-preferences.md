@@ -46,3 +46,13 @@ Use the following project structure
 - Run Python tools like Pytest with `uv run pytest` or `uv run ruff`
 - Launch a Python repl with `uv run python`
 - Configure [tool.hatch.build.targets.wheel] packages with the correct value for the project
+
+
+## Testing and PyTest
+
+- NEVER use mocking - always test directly against interfaces or services
+- ALWAYS fix tests that generate warning errors
+
+## Secrets
+
+- NEVER store Cloud provider credentials in a configuration file

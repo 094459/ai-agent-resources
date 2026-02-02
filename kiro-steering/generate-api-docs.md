@@ -1,32 +1,33 @@
-# Task: Generate OpenAPI 3 Documentation
+# Task: Generate OpenAPI 3 Documentation for Python Flask Projects
 
-You are tasked with analyzing the codebase and generating comprehensive OpenAPI documentation.
+You are tasked with analyzing a Python Flask codebase and generating comprehensive OpenAPI documentation.
 
-### Step 1: Analyze Each Route File
+### Step 1: Analyze Each Flask Route
 
-For each API route, carefully analyze:
+For each Flask API route, carefully analyze:
 
-- **HTTP Methods**: Clearly distinguish between GET, POST, PUT, DELETE, PATCH, etc.
-- **Path Parameters**: Extract possible path parameters from the route.
-- **Request Body**: Analyze inputs to determine input structure.
-- **Response Types**: Analyze outputs to determine response structure.
-- **Status Codes**: Understand what HTTP codes given responses have.
-- **Authentication**: Understand how each endpoint is authenticated (oauth, api tokens, etc.).
-- **Error Handling**: Identify thrown errors and their types.
+- **HTTP Methods**: Extract from Flask route decorators (`@app.route`, `@bp.route`) with methods parameter
+- **Path Parameters**: Extract from Flask route patterns (e.g., `/users/<int:user_id>`, `/posts/<string:slug>`)
+- **Request Body**: Analyze Flask request handling (`request.json`, `request.form`, Pydantic models)
+- **Response Types**: Analyze Flask response patterns (`jsonify()`, `make_response()`, return tuples)
+- **Status Codes**: Extract from Flask response tuples, `abort()` calls, and explicit status codes
+- **Authentication**: Look for Flask decorators (`@login_required`, `@jwt_required`, custom auth decorators)
+- **Error Handling**: Identify Flask error handlers (`@app.errorhandler`) and custom exceptions
+- **Type Hints**: Leverage Python type hints and Pydantic models for schema inference
+- **Docstrings**: Extract information from function docstrings following Python conventions
 
 ### Step 2: Review Existing Documentation
 
 **IMPORTANT**: Documentation files may already exist from previous generation runs.
 
 Before making any changes:
-1. List all existing files in `{{DOCUMENTATION_SCHEMAS_PATH}}`.
-2. List all existing files in `{{DOCUMENTATION_ROUTES_PATH}}`.
+1. List all existing files in the current project workspace.
 3. Read each existing file to understand what's already documented.
 4. Compare existing documentation with current API route implementations.
 
 ### Step 3: Generate or Update Documentation Files
 
-#### A. Schema Files (`{{DOCUMENTATION_SCHEMAS_PATH}}`)
+#### A. Schema Files
 
 Create or update schema files for all data structures. Group related schemas by entity.
 
@@ -35,31 +36,43 @@ Create or update schema files for all data structures. Group related schemas by 
 - If a schema file is missing: Create a new file.
 - If a schema is no longer used: Delete the schema definition from the file.
 
-**File naming**: Use entity name (e.g., `user.json`, `team.json`, `error.json`)
+**File naming**: Use entity name (e.g., `user.json`, `survey.json`, `error.json`)
 
-**Important**:
-- Infer types from the codebase (interfaces, type hints, static typing) and validation logic.
-- Add `"nullable": true` for optional fields.
-- Include `description` and `example` for all properties.
+**Python-Specific Schema Inference**:
+- **SQLAlchemy Models**: Extract field types, constraints, and relationships from model definitions
+- **Pydantic Models**: Use Pydantic schema generation and validation rules
+- **Type Hints**: Leverage Python type annotations (`Optional`, `List`, `Dict`, `Union`)
+- **Flask-WTF Forms**: Extract validation rules from WTForms field definitions
+- **Dataclasses**: Use dataclass field definitions and default values
+- Add `"nullable": true` for `Optional` types and fields with `default=None`
+- Include `description` from docstrings and field comments
 - Use JSON Schema formats: `date-time`, `email`, `uri`, etc.
-- Add validation constraints: `minLength`, `maxLength`, `minimum`, `maximum`, etc. if they are present in code.
+- Add validation constraints from Pydantic validators, SQLAlchemy constraints, and WTForms validators
+- Handle Python-specific types: `datetime`, `UUID`, `Decimal`, `Enum`
 
-#### B. Route Files (`{{DOCUMENTATION_ROUTES_PATH}}`)
+#### B. Route Files
 
-Create or update one file per API endpoint with 1-1 mapping to source files.
+Create or update one file per API endpoint with 1-1 mapping to Flask route functions.
 
 **Update Strategy**:
 - If a route file exists: Read it first, then update only if changes are needed
 - If a route file is missing: Create a new file
-- If a route file exists but the API route was deleted: Delete the route file
+- If a route file exists but the Flask route was deleted: Delete the route file
 
 **Required Fields**:
-- `summary` - Short description.
-- `description` - Longer explanation.
-- `operationId` - Unique identifier (camelCase, e.g., `getUser`).
-- `tags` - Categorization (e.g., `["Users"]`).
-- `security` - Oauth, token, etc.
-- `responses` - Include all possible status codes.
+- `summary` - Extract from function name or first line of docstring
+- `description` - Extract from function docstring (Google/Sphinx style)
+- `operationId` - Generate from function name (snake_case to camelCase conversion)
+- `tags` - Use Flask Blueprint names or route prefixes for categorization
+- `security` - Detect from Flask decorators (`@login_required`, `@jwt_required`, etc.)
+- `responses` - Include all possible status codes from Flask responses and error handlers
+
+**Flask-Specific Considerations**:
+- Handle Flask route parameter types (`<int:id>`, `<string:name>`, `<path:filename>`)
+- Extract request validation from Pydantic models or WTForms
+- Document Flask-specific response patterns (`jsonify`, `render_template`, `redirect`)
+- Include Flask error handling (`abort()`, custom error handlers)
+- Handle Flask request context (`request.args`, `request.json`, `request.files`)
 
 ### Step 4: Validation
 
@@ -75,9 +88,9 @@ Before writing/updating each file:
 
 1. **Inventory Phase**:
 
-   - List all API routes (endpoints).
-   - List all existing schema files in `{{DOCUMENTATION_SCHEMAS_PATH}}`.
-   - List all existing route files in `{{DOCUMENTATION_ROUTES_PATH}}`.
+   - Scan `src/routes/` directoints).
+   - List all existing schema files.
+   - List all existing route files.
 
 2. **Analysis Phase**:
 
@@ -111,10 +124,3 @@ Before writing/updating each file:
    - List all files deleted.
    - Report final validation status.
    - Confirm all changes are complete.
-
-### Step 5: IMPORTANT instructions & context
-
-{{ADDITIONAL_INSTRUCTIONS}}
-
-Begin now. Be thorough and precise. Only make changes where necessary.
-

@@ -33,16 +33,9 @@
 - Async/await misuse or blocking operations in async contexts
 - Improper trait implementations
 
-## Project-Specific Context
- 
-{add key details of your project here}
-
 ## Skip These (Low Value)
  
 Do not comment on:
-- **Style/formatting** - CI handles this (rustfmt, prettier)
-- **Clippy warnings** - CI handles this (clippy-lint.sh)
-- **Test failures** - CI handles this (full test suite)
 - **Missing dependencies** - CI handles this (npm ci will fail)
 - **Minor naming suggestions** - unless truly confusing
 - **Suggestions to add comments** - for self-documenting code
@@ -52,8 +45,9 @@ Do not comment on:
 - **Pedantic accuracy in text** - unless it would cause actual confusion or errors. No one likes a reply guy
 
 ## Response Format
- 
-When you identify an issue:
+
+- Add issues to a "REVIEW-LOG.MD" file
+- When you identify an issue:
 1. **State the problem** (1 sentence)
 2. **Why it matters** (1 sentence, only if not obvious)
 3. **Suggested fix** (code snippet or specific action)
