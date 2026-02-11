@@ -42,6 +42,11 @@ Feel free to use these resources, and submit PRs with your own.
 
 * [Building serverless architectures for agentic AI using AWS](https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-serverless/introduction.html?trk=71546b8e-c969-4ead-aa9f-9cd06f6d8610&sc_channel=el)
 
+## Claude Code specific
+
+* [claude-code-templates](https://github.com/davila7/claude-code-templates) - A comprehensive collection of AI agents, custom commands, settings, hooks, external integrations (MCPs), and project templates to enhance your development workflow.
+
+
 ## Developers sharing their setups
 
 * [Paul Hammond](https://github.com/citypaul/.dotfiles) Paul has been sharing his setup for many months now, so this repo represents a carefully constructed, immaculately refined, but importantly, regularly (daily) used setup of prompts, skills, etc. Great stuff in here.
