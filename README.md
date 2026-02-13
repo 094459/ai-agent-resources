@@ -26,6 +26,10 @@ Feel free to use these resources, and submit PRs with your own.
 
 [agents](https://github.com/astronomer/agents) - a number of agents/skills that make working with Apache Airflow a joy
 
+**Mega Collection of Agents**
+
+[agent-collection](https://github.com/bluearchio/agent-profiles) - over 75 specialised agents that cover more than just coding. product, org, leadership and more.
+
 ## AWS Agentic Patterns
 
 * [Agentic AI patterns and workflows on AWS](https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-patterns/introduction.html?trk=71546b8e-c969-4ead-aa9f-9cd06f6d8610&sc_channel=el)
